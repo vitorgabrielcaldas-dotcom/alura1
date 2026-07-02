@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Portal Web</title>
+    <style>
+        /* ====== RESET E VARIÁVEIS ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cor-primaria: #2563eb;
+            --cor-secundaria: #1e40af;
+            --cor-terciaria: #3b82f6;
+            --cor-fundo: #f8fafc;
+            --cor-fundo-claro: #ffffff;
+            --cor-texto: #1e293b;
+            --cor-texto-claro: #64748b;
+            --cor-borda: #e2e8f0;
+            --cor-sucesso: #10b981;
+            --cor-atencao: #f59e0b;
+            --cor-erro: #ef4444;
+            --fonte-principal: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --fonte-titulo: 'Arial', sans-serif;
+            --sombra: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --sombra-forte: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: var(--fonte-principal);
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* ====== CONTAINER ====== */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ====== MENU LATERAL ====== */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: var(--sombra-forte);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 15px;
+        }
+
+        .menu-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-link:hover,
+        .menu-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ====== HEADER ====== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 260px;
+            right: 0;
+            height: 70px;
+            background-color: var(--cor-fundo-claro);
+            border-bottom: 1px solid var(--cor-borda);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 999;
+            box-shadow: var(--sombra);
+        }
+
+        .header-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--cor-texto);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--cor-fundo);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--cor-borda);
+            transform: scale(1.1);
+        }
+
+        .toggle-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--cor-primaria);
+        }
+
+        /* ====== MAIN CONTENT ====== */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 70px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ====== DASHBOARD ====== */
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--cor-texto);
+        }
+
+        .dashboard-subtitle {
+            color: var(--cor-texto-claro);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--cor-fundo-claro);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--sombra);
+            border-left: 4px solid var(--cor-primaria);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--sombra-forte);
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--cor-texto);
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--cor-primaria);
+            margin-bottom: 8px;
+        }
+
+        .card-description {
+            color: var(--cor-texto-claro);
+            font-size: 13px;
+        }
+
+        .card.success {
+            border-left-color: var(--cor-sucesso);
+        }
+
+        .card.warning {
+            border-left-color: var(--cor-atencao);
+        }
+
+        .card.danger {
+            border-left-color: var(--cor-erro);
+        }
+
+        /* ====== TABELAS ====== */
+        .table-container {
+            background-color: var(--cor-fundo-claro);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--sombra);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: var(--cor-fundo);
+            border-bottom: 2px solid var(--cor-borda);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--cor-texto);
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--cor-borda);
+        }
+
+        tbody tr:hover {
+            background-color: var(--cor-fundo);
+        }
+
+        /* ====== BOTÕES ====== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--cor-primaria);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--cor-secundaria);
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-forte);
+        }
+
+        .btn-secundary {
+            background-color: var(--cor-fundo);
+            color: var(--cor-primaria);
+            border: 1px solid var(--cor-primaria);
+        }
+
+        .btn-secundary:hover {
+            background-color: var(--cor-primaria);
+            color: white;
+        }
+
+        /* ====== LINKS SEÇÃO ====== */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .link-card {
+            background-color: var(--cor-fundo-claro);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--sombra);
+            border: 1px solid var(--cor-borda);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .link-card:hover {
+            border-color: var(--cor-primaria);
+            box-shadow: var(--sombra-forte);
+            transform: translateY(-3px);
+        }
+
+        .link-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .link-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--cor-texto);
+        }
+
+        .link-description {
+            color: var(--cor-texto-claro);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .link-arrow {
+            color: var(--cor-primaria);
+            font-weight: 600;
+        }
+
+        /* ====== RESPONSIVO ====== */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                z-index: 1001;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                left: 0;
+            }
+
+            .toggle-menu {
+                display: block;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR MENU -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <span>Dashboard</span>
+            </div>
+
+            <ul class="menu-list">
+                <li class="menu-item">
+                    <a href="#" class="menu-link active" data-page="dashboard">
+                        <span class="menu-icon">🏠</span>
+                        <span>Início</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" data-page="analytics">
+                        <span class="menu-icon">📈</span>
+                        <span>Análise</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" data-page="usuarios">
+                        <span class="menu-icon">👥</span>
+                        <span>Usuários</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" data-page="links">
+                        <span class="menu-icon">🔗</span>
+                        <span>Links Úteis</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" data-page="configuracoes">
+                        <span class="menu-icon">⚙️</span>
+                        <span>Configurações</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div style="width: 100%; display: flex; flex-direction: column;">
+            <!-- HEADER -->
+            <header class="header">
+                <button class="toggle-menu" id="toggleMenu">☰</button>
+                <h1 class="header-title" id="pageTitle">Início</h1>
+                <div class="header-actions">
+                    <button class="btn-icon" title="Notificações">🔔</button>
+                    <button class="btn-icon" title="Usuário">👤</button>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO PRINCIPAL -->
+            <main class="main-content">
+                <!-- PÁGINA: DASHBOARD -->
+                <section class="page-section active" id="dashboard">
+                    <div class="dashboard-title">Bem-vindo ao Dashboard</div>
+                    <div class="dashboard-subtitle">Acompanhe suas métricas e desempenho em tempo real</div>
+
+                    <div class="cards-grid">
+                        <div class="card">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Total de Visitas</div>
+                            <div class="card-value">12.543</div>
+                            <div class="card-description">+15% comparado ao mês anterior</div>
+                        </div>
+
+                        <div class="card success">
+                            <div class="card-icon">💰</div>
+                            <div class="card-title">Receita</div>
+                            <div class="card-value">R$ 45.230</div>
+                            <div class="card-description">+8% comparado ao mês anterior</div>
+                        </div>
+
+                        <div class="card warning">
+                            <div class="card-icon">⏰</div>
+                            <div class="card-title">Tempo Médio</div>
+                            <div class="card-value">4m 32s</div>
+                            <div class="card-description">Tempo médio de permanência</div>
+                        </div>
+
+                        <div class="card danger">
+                            <div class="card-icon">🚨</div>
+                            <div class="card-title">Taxa de Rejeição</div>
+                            <div class="card-value">32%</div>
+                            <div class="card-description">-5% comparado ao mês anterior</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+                        <button class="btn btn-primary">📥 Exportar Relatório</button>
+                        <button class="btn btn-secundary">🔄 Atualizar Dados</button>
+                    </div>
+                </section>
+
+                <!-- PÁGINA: ANALYTICS -->
+                <section class="page-section" id="analytics">
+                    <div class="dashboard-title">Análise Detalhada</div>
+                    <div class="dashboard-subtitle">Visualize dados e estatísticas avançadas</div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Visitas</th>
+                                    <th>Usuários Únicos</th>
+                                    <th>Taxa de Conversão</th>
+                                    <th>Receita</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>02/07/2026</td>
+                                    <td>1.234</td>
+                                    <td>856</td>
+                                    <td>3.2%</td>
+                                    <td>R$ 4.520</td>
+                                </tr>
+                                <tr>
+                                    <td>01/07/2026</td>
+                                    <td>1.456</td>
+                                    <td>924</td>
+                                    <td>3.8%</td>
+                                    <td>R$ 5.120</td>
+                                </tr>
+                                <tr>
+                                    <td>30/06/2026</td>
+                                    <td>1.123</td>
+                                    <td>742</td>
+                                    <td>2.9%</td>
+                                    <td>R$ 3.890</td>
+                                </tr>
+                                <tr>
+                                    <td>29/06/2026</td>
+                                    <td>1.567</td>
+                                    <td>1.012</td>
+                                    <td>4.1%</td>
+                                    <td>R$ 6.200</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- PÁGINA: USUÁRIOS -->
+                <section class="page-section" id="usuarios">
+                    <div class="dashboard-title">Gerenciamento de Usuários</div>
+                    <div class="dashboard-subtitle">Lista de todos os usuários cadastrados</div>
+
+                    <div style="margin-bottom: 20px;">
+                        <button class="btn btn-primary">➕ Adicionar Usuário</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Data de Cadastro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>João Silva</td>
+                                    <td>joao@email.com</td>
+                                    <td><span style="background-color: var(--cor-sucesso); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">Ativo</span></td>
+                                    <td>15/06/2026</td>
+                                    <td>
+                                        <button class="btn btn-secundary" style="padding: 6px 12px; font-size: 12px;">✏️ Editar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Maria Santos</td>
+                                    <td>maria@email.com</td>
+                                    <td><span style="background-color: var(--cor-sucesso); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">Ativo</span></td>
+                                    <td>10/06/2026</td>
+                                    <td>
+                                        <button class="btn btn-secundary" style="padding: 6px 12px; font-size: 12px;">✏️ Editar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Pedro Costa</td>
+                                    <td>pedro@email.com</td>
+                                    <td><span style="background-color: var(--cor-atencao); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">Inativo</span></td>
+                                    <td>05/06/2026</td>
+                                    <td>
+                                        <button class="btn btn-secundary" style="padding: 6px 12px; font-size: 12px;">✏️ Editar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- PÁGINA: LINKS ÚTEIS -->
+                <section class="page-section" id="links">
+                    <div class="dashboard-title">Links Úteis</div>
+                    <div class="dashboard-subtitle">Acesso rápido aos principais recursos</div>
+
+                    <div class="links-grid">
+                        <a href="https://github.com" target="_blank" class="link-card">
+                            <div class="link-icon">🐙</div>
+                            <div class="link-title">GitHub</div>
+                            <div class="link-description">Repositório de código e controle de versão</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+
+                        <a href="https://stackoverflow.com" target="_blank" class="link-card">
+                            <div class="link-icon">🔍</div>
+                            <div class="link-title">Stack Overflow</div>
+                            <div class="link-description">Comunidade de programadores</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+
+                        <a href="https://developer.mozilla.org" target="_blank" class="link-card">
+                            <div class="link-icon">🦊</div>
+                            <div class="link-title">MDN Web Docs</div>
+                            <div class="link-description">Documentação web completa</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+
+                        <a href="https://tailwindcss.com" target="_blank" class="link-card">
+                            <div class="link-icon">🎨</div>
+                            <div class="link-title">Tailwind CSS</div>
+                            <div class="link-description">Framework de CSS utilitário</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+
+                        <a href="https://nodejs.org" target="_blank" class="link-card">
+                            <div class="link-icon">⚡</div>
+                            <div class="link-title">Node.js</div>
+                            <div class="link-description">JavaScript runtime</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+
+                        <a href="https://www.figma.com" target="_blank" class="link-card">
+                            <div class="link-icon">🎭</div>
+                            <div class="link-title">Figma</div>
+                            <div class="link-description">Design colaborativo</div>
+                            <div class="link-arrow">Acessar →</div>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- PÁGINA: CONFIGURAÇÕES -->
+                <section class="page-section" id="configuracoes">
+                    <div class="dashboard-title">Configurações</div>
+                    <div class="dashboard-subtitle">Personalize sua experiência</div>
+
+                    <div class="table-container" style="max-width: 600px;">
+                        <div style="padding: 20px 0; border-bottom: 1px solid var(--cor-borda); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">🌙 Modo Escuro</div>
+                                <div style="color: var(--cor-texto-claro); font-size: 13px;">Ativar tema escuro da aplicação</div>
+                            </div>
+                            <input type="checkbox" style="width: 40px; height: 24px; cursor: pointer;">
+                        </div>
+
+                        <div style="padding: 20px 0; border-bottom: 1px solid var(--cor-borda); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">🔔 Notificações</div>
+                                <div style="color: var(--cor-texto-claro); font-size: 13px;">Receber notificações por email</div>
+                            </div>
+                            <input type="checkbox" checked style="width: 40px; height: 24px; cursor: pointer;">
+                        </div>
+
+                        <div style="padding: 20px 0; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 5px;">🔒 Privacidade</div>
+                                <div style="color: var(--cor-texto-claro); font-size: 13px;">Perfil privado</div>
+                            </div>
+                            <input type="checkbox" style="width: 40px; height: 24px; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <button class="btn btn-primary">💾 Salvar Configurações</button>
+                        <button class="btn btn-secundary" style="margin-left: 10px;">↩️ Restaurar Padrão</button>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // ====== ELEMENTOS DO DOM ======
+        const sidebar = document.getElementById('sidebar');
+        const toggleMenuBtn = document.getElementById('toggleMenu');
+        const menuLinks = document.querySelectorAll('.menu-link');
+        const pageTitle = document.getElementById('pageTitle');
+        const pageSections = document.querySelectorAll('.page-section');
+
+        // ====== MAPA DE TÍTULOS ======
+        const pageTitles = {
+            dashboard: 'Início',
+            analytics: 'Análise Detalhada',
+            usuarios: 'Gerenciamento de Usuários',
+            links: 'Links Úteis',
+            configuracoes: 'Configurações'
+        };
+
+        // ====== ALTERNANCIA DO MENU MOBILE ======
+        toggleMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-hidden');
+        });
+
+        // ====== NAVEGAÇÃO ENTRE PÁGINAS ======
+        menuLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                // Remove classe ativa de todos os links
+                menuLinks.forEach(l => l.classList.remove('active'));
+                // Adiciona classe ativa ao link clicado
+                link.classList.add('active');
+
+                // Obtém a página do atributo data
+                const page = link.getAttribute('data-page');
+
+                // Esconde todas as seções
+                pageSections.forEach(section => section.classList.remove('active'));
+                // Mostra a seção selecionada
+                document.getElementById(page).classList.add('active');
+
+                // Atualiza o título do header
+                pageTitle.textContent = pageTitles[page];
+
+                // Fecha o sidebar no mobile
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('mobile-hidden');
+                }
+            });
+        });
+
+        // ====== FECHAR SIDEBAR AO CLICAR FORA (MOBILE) ======
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggleMenuBtn.contains(e.target)) {
+                    sidebar.classList.add('mobile-hidden');
+                }
+            }
+        });
+
+        // ====== ANIMAÇÃO DE ENTRADA ======
+        window.addEventListener('load', () => {
+            console.log('✅ Dashboard carregado com sucesso!');
+            console.log('📊 Bem-vindo ao seu portal web');
+        });
+
+        // ====== INTERATIVIDADE DOS BOTÕES ======
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (e.target.closest('.btn')) {
+                    console.log('🔘 Botão clicado:', btn.textContent.trim());
+                }
+            });
+        });
+
+        // ====== FUNCIONALIDADE DE NOTIFICAÇÕES ======
+        const notificationBtn = document.querySelector('button[title="Notificações"]');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
+                alert('🔔 Você tem 3 novas notificações!');
+            });
+        }
+
+        // ====== FUNCIONALIDADE DE PERFIL ======
+        const profileBtn = document.querySelector('button[title="Usuário"]');
+        if (profileBtn) {
+            profileBtn.addEventListener('click', () => {
+                alert('👤 Clique aqui para acessar seu perfil');
+            });
+        }
+    </script>
+</body>
+</html>
